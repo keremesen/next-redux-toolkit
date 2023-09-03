@@ -1,4 +1,3 @@
-"use client";
 import "./globals.css";
 import { Inter } from "next/font/google";
 
@@ -16,7 +15,7 @@ export default function RootLayout({ children }) {
   return (
     <Providers>
       <html lang="en">
-        <body className={inter.className}>
+        <body className={`${inter.className} flex flex-col h-screen  `}>
           <Header />
           {children}
         </body>

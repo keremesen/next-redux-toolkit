@@ -86,11 +86,11 @@ export default function Home() {
     </>
   );
 
-const filteredData = data.filter(d => d.name.toLowerCase().includes(keyword.toLowerCase()))
+const filteredData = data.filter(d => d?.name?.toLowerCase().includes(keyword.toLowerCase()))
 
   return (
-    <main className="flex">
-      <div className="flex flex-wrap items-center">
+    <main className="flex bg-indigo-50 items-start h-full p-4">
+      <div className="flex flex-wrap items-center p-4">
         {filteredData?.map((d, idx) => (
           <ProductCard key={idx} data={d} />
         ))}
