@@ -17,7 +17,7 @@ export default function Home() {
     url: "",
   });
   const { modal } = useSelector((state) => state.modal);
-  const { data } = useSelector((state) => state.data);
+  const { data,keyword } = useSelector((state) => state.data);
   const dispatch = useDispatch();
 
   const router = useRouter();
@@ -86,10 +86,12 @@ export default function Home() {
     </>
   );
 
+const filteredData = data.filter(d => d.name.toLowerCase().includes(keyword.toLowerCase()))
+
   return (
     <main className="flex">
       <div className="flex flex-wrap items-center">
-        {data?.map((d, idx) => (
+        {filteredData?.map((d, idx) => (
           <ProductCard key={idx} data={d} />
         ))}
       </div>
