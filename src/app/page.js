@@ -3,10 +3,12 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Modal from "@/components/Modal";
 import ProductCard from "@/components/ProductCard";
-import { createDataFunc } from "@/lib/redux/dataSlice";
+import { createDataFunc, updateDataFunc } from "@/lib/redux/dataSlice";
 import { modalFunc } from "@/lib/redux/modalSlice";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const [productInfo, setProductInfo] = useState({
@@ -14,11 +16,22 @@ export default function Home() {
     price: "",
     url: "",
   });
-
   const { modal } = useSelector((state) => state.modal);
   const { data } = useSelector((state) => state.data);
   const dispatch = useDispatch();
-  console.log(data)
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const search = searchParams.get("update");
+
+  useEffect(() => {
+    if (!modal && search) {
+      router.push("/");
+    }
+
+    setProductInfo(data.find((d) => d.id == search));
+  }, [modal, search]);
 
   const onChangeFunc = (e) => {
     e.preventDefault();
@@ -31,22 +44,30 @@ export default function Home() {
       setProductInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     }
   };
-  const buttonFunc = () => {
-    dispatch(createDataFunc(productInfo));
+  const buttonCreateFunc = () => {
+    dispatch(createDataFunc({ ...productInfo, id: data.length + 1 }));
     dispatch(modalFunc());
+  };
+
+  const buttonUpdateFunc = () => {
+    dispatch(updateDataFunc({ ...productInfo, id: search }));
+    dispatch(modalFunc());
+    router.push("/");
   };
   const contentModal = (
     <>
       <Input
+        value={productInfo?.name}
         type={"text"}
-        placeholder={"Add Product"}
+        placeholder={"Product Name"}
         name={"name"}
         id={"name"}
         onChange={onChangeFunc}
       />
       <Input
+        value={productInfo?.price}
         type={"text"}
-        placeholder={"Add Price"}
+        placeholder={"Product Price"}
         name={"price"}
         id={"price"}
         onChange={onChangeFunc}
@@ -58,20 +79,26 @@ export default function Home() {
         id={"url"}
         onChange={onChangeFunc}
       />
-      <Button btnText={"Create"} onClick={buttonFunc} />
+      <Button
+        btnText={search ? "Edit" : "Create"}
+        onClick={search ? buttonUpdateFunc : buttonCreateFunc}
+      />
     </>
   );
 
   return (
     <main className="flex">
-      <div className="flex" >
-        {
-          data?.map((d,idx)=>(
-            <ProductCard key={idx} data={d} />
-          ))
-        }
+      <div className="flex flex-wrap items-center">
+        {data?.map((d, idx) => (
+          <ProductCard key={idx} data={d} />
+        ))}
       </div>
-      {modal && <Modal title={"Create Product"} content={contentModal} />}
+      {modal && (
+        <Modal
+          title={search ? "Edit Product" : "Create Product"}
+          content={contentModal}
+        />
+      )}
     </main>
   );
 }
